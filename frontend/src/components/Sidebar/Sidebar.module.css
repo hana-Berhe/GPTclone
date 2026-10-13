@@ -1,0 +1,381 @@
+.sidebar {
+  flex-shrink: 0;
+  height: 100%;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: width 0.2s ease;
+  z-index: 30;
+}
+
+.open {
+  width: 260px;
+}
+
+.closed {
+  width: 0;
+  border-right: none;
+}
+
+.inner {
+  width: 260px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 8px;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.iconBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background-color: var(--bg-hover);
+}
+
+.shortcut {
+  margin-left: auto;
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.item:hover .shortcut {
+  opacity: 1;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 10px;
+  border-radius: 8px;
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  padding: 3px 0;
+}
+
+.searchBox button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.history {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+.group {
+  margin-bottom: 16px;
+}
+
+.group ul {
+  list-style: none;
+}
+
+.groupLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 6px 10px;
+}
+
+.chatItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.chatItem:hover,
+.chatItem.active,
+.chatItem.menuOpen {
+  background-color: var(--bg-hover);
+}
+
+.chatItem.active {
+  background-color: var(--bg-active);
+}
+
+.chatLink {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.menuWrap {
+  position: relative;
+}
+
+.moreBtn {
+  display: flex;
+  padding: 6px;
+  margin-right: 4px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.chatItem:hover .moreBtn,
+.chatItem.active .moreBtn,
+.chatItem.menuOpen .moreBtn,
+.moreBtn:focus-visible {
+  opacity: 1;
+}
+
+.moreBtn:hover {
+  color: var(--text-primary);
+}
+
+.renameInput {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  min-width: 150px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-menu);
+  box-shadow: var(--shadow);
+  z-index: 40;
+}
+
+.menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background-color: var(--bg-hover);
+}
+
+.menu .danger {
+  color: var(--danger);
+}
+
+.emptyHistory {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.skeleton {
+  list-style: none;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.skeleton li {
+  height: 12px;
+  border-radius: 6px;
+  background-color: var(--bg-hover);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.footer {
+  position: relative;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.userMenu {
+  top: auto;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+}
+
+.userEmail {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.user {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.user:hover {
+  background-color: var(--bg-hover);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userPlan {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* On phones the sidebar slides over the chat instead of pushing it */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    transition: transform 0.2s ease;
+    border-right: 1px solid var(--border-color);
+  }
+
+  .inner {
+    width: 280px;
+  }
+
+  .open {
+    transform: translateX(0);
+  }
+
+  .closed {
+    transform: translateX(-100%);
+  }
+
+  .moreBtn {
+    opacity: 1;
+  }
+
+  .shortcut {
+    display: none;
+  }
+}

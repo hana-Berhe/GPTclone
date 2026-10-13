@@ -1,0 +1,16 @@
+{
+  "name": "chatgpt-clone",
+  "private": true,
+  "description": "Builds the React app and starts the Express server that serves it.",
+  "scripts": {
+    "build": "npm install --include=dev --prefix frontend && npm run build --prefix frontend && npm install --omit=dev --prefix backEnd",
+    "start": "npm start --prefix backEnd",
+    "test": "npm test --prefix backEnd",
+    "format": "npm run format --prefix backEnd && npm run format --prefix frontend",
+    "format:check": "npm run format:check --prefix backEnd && npm run format:check --prefix frontend",
+    "lint": "npm run lint --prefix frontend"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

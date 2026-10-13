@@ -1,0 +1,4 @@
+# Store all text files with LF line endings, even when committed from Windows.
+* text=auto eol=lf
+*.png binary
+*.svg text
