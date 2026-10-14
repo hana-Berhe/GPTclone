@@ -1,4 +1,10 @@
 node_modules
 dist
-.env
 .DS_Store
+
+# Secrets: never commit environment files or certificates
+.env
+.env.*
+.envLocal
+!.env.example
+*.pem

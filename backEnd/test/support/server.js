@@ -62,7 +62,12 @@ export async function startServer() {
     return { status: response.status, events };
   };
 
-  return { request, stream, close: () => new Promise((resolve) => server.close(resolve)) };
+  return {
+    baseUrl,
+    request,
+    stream,
+    close: () => new Promise((resolve) => server.close(resolve)),
+  };
 }
 
 let counter = 0;
