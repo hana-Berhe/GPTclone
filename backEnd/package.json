@@ -11,6 +11,7 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "db:check": "node scripts/check-db.js",
+    "db:seed": "node scripts/seed.js",
     "test": "node --no-warnings=ExperimentalWarning --import ./test/support/register.js --test --test-reporter=spec test/*.test.js",
     "format": "prettier . --write",
     "format:check": "prettier . --check"

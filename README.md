@@ -133,6 +133,28 @@ Built in for running publicly:
 Every push to `main` redeploys automatically. Never commit `.env` files or `*.pem`
 certificates; `.gitignore` already excludes them.
 
+## Demo data (for screenshots)
+
+```bash
+cd backEnd
+npm run db:seed
+```
+
+Creates two demo accounts with realistic conversations (code, tables, lists) spread across
+Today, Yesterday, Previous 7 days, Previous 30 days and an older month:
+
+| Account | Email | Chats |
+| --- | --- | --- |
+| Hana Berhe | `hana@example.com` | 10 |
+| Abebe Kebede | `abebe@example.com` | 2 |
+
+The password is `Demo1234!` (or set your own: `SEED_PASSWORD=YourPassword npm run db:seed`).
+Run it again any time to reset the demo chats; real users are never touched. The
+conversations live in `backEnd/db/seed-data.md`, so you can edit them freely.
+
+Run it from your computer: the chats are placed on calendar days in your time zone.
+To seed the deployed app, point `backEnd/.env` at the production database (Aiven) first.
+
 ## Tests
 
 ```bash

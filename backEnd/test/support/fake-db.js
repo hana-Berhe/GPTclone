@@ -32,11 +32,19 @@ db.exec(`
   );
 `);
 
+// MySQL stores dates as "YYYY-MM-DD HH:MM:SS" (UTC in this app); SQLite needs plain values.
+const toSqlValue = (value) =>
+  value instanceof Date ? value.toISOString().slice(0, 19).replace("T", " ") : value;
+
 async function run(sql, params = []) {
+  // The tables above already exist; db/setup.js's MySQL statements are not needed.
+  if (/^\s*CREATE TABLE IF NOT EXISTS/i.test(sql)) return [{}];
+
   const statement = db.prepare(sql);
   try {
-    if (/^\s*select/i.test(sql)) return [statement.all(...params)];
-    const result = statement.run(...params);
+    const values = params.map(toSqlValue);
+    if (/^\s*select/i.test(sql)) return [statement.all(...values)];
+    const result = statement.run(...values);
     return [{ insertId: Number(result.lastInsertRowid), affectedRows: Number(result.changes) }];
   } catch (error) {
     if (/UNIQUE/.test(error.message)) error.code = "ER_DUP_ENTRY";
@@ -44,4 +52,4 @@ async function run(sql, params = []) {
   }
 }
 
-export default { execute: run, query: run };
+export default { execute: run, query: run, end: async () => {} };
