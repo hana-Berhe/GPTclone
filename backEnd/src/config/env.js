@@ -15,6 +15,16 @@ if (process.env.JWT_SECRET.length < 32) {
   process.exit(1);
 }
 
+const useDbSsl = process.env.DB_SSL?.trim().toLowerCase() === "true";
+// Hosting dashboards often store multi-line values with literal "\n"; turn them back into newlines.
+const dbSslCa = process.env.DB_SSL_CA?.replace(/\\n/g, "\n").trim();
+
+if (useDbSsl && !dbSslCa?.includes("BEGIN CERTIFICATE")) {
+  console.error("DB_SSL is true, so DB_SSL_CA must contain the database's CA certificate.");
+  console.error("Paste the whole certificate, including the BEGIN/END CERTIFICATE lines.");
+  process.exit(1);
+}
+
 const toInt = (value, fallback) => {
   const n = Number.parseInt(value, 10);
   return Number.isNaN(n) || n <= 0 ? fallback : n;
@@ -32,6 +42,8 @@ const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD || "",
     database: process.env.DB_NAME,
+    // Encrypted connection with certificate verification (required by Aiven and most cloud databases)
+    ssl: useDbSsl ? { ca: dbSslCa, rejectUnauthorized: true } : undefined,
   },
   jwt: {
     secret: process.env.JWT_SECRET,
