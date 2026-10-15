@@ -21,6 +21,13 @@ export function createApp() {
   app.use(cors({ origin: config.clientOrigins }));
   app.use(express.json({ limit: "1mb" }));
 
+  app.get("/health", (req, res) => {
+    res.status(200).json({
+      status: "ok",
+      message: "ChatGPT clone backend is running",
+    });
+  });
+
   app.use("/api", mainRouter);
 
   // In production the React build (frontend/dist) is served by this same server,
