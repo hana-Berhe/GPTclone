@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { readSchemaStatements } from "../db/setup.js";
-import { toGeminiHistory } from "../src/lib/gemini-history.js";
-import { hashPassword, verifyPassword } from "../src/lib/password.js";
-import { createToken, verifyToken } from "../src/lib/token.js";
+import { readSchemaStatements } from "../schema/setup.js";
+import { toGeminiHistory } from "../src/api/chat/service/gemini-history.js";
+import { hashPassword, verifyPassword } from "../src/utility/password.js";
+import { createToken, verifyToken } from "../src/utility/token.js";
 
 describe("toGeminiHistory", () => {
   it("drops leading model turns and merges consecutive turns of the same role", () => {

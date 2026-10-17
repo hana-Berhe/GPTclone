@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import dbConnection from "./db.config.js";
+import { db } from "./db.config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Splits schema.sql into single statements (comment lines removed).
+// Splits schema.sql into single statements (comment lines removed)
 export function readSchemaStatements(file = path.join(__dirname, "schema.sql")) {
   return fs
     .readFileSync(file, "utf8")
@@ -18,9 +18,9 @@ export function readSchemaStatements(file = path.join(__dirname, "schema.sql")) 
 }
 
 // Creates any missing tables. Every statement uses CREATE TABLE IF NOT EXISTS,
-// so this is safe to run on every start.
+// so this is safe to run every time the server starts.
 export async function setupDatabase() {
   for (const statement of readSchemaStatements()) {
-    await dbConnection.query(statement);
+    await db.query(statement);
   }
 }

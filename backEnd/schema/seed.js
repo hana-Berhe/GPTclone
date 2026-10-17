@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { hashPassword } from "../src/lib/password.js";
-import dbConnection from "./db.config.js";
+import { hashPassword } from "../src/utility/password.js";
+import { safeExecute } from "./db.config.js";
 import { setupDatabase } from "./setup.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -71,17 +71,17 @@ export function parseSeedChats(text = fs.readFileSync(SEED_FILE, "utf8")) {
 
 // Creates the demo user, or resets the name and password if it already exists.
 async function upsertUser({ name, email }, passwordHash) {
-  const [rows] = await dbConnection.execute("SELECT id FROM users WHERE email = ? LIMIT 1", [email]);
+  const rows = await safeExecute("SELECT id FROM users WHERE email = ? LIMIT 1", [email]);
   if (rows[0]) {
     const id = Number(rows[0].id);
-    await dbConnection.execute("UPDATE users SET name = ?, password_hash = ? WHERE id = ?", [
+    await safeExecute("UPDATE users SET name = ?, password_hash = ? WHERE id = ?", [
       name,
       passwordHash,
       id,
     ]);
     return id;
   }
-  const [result] = await dbConnection.execute(
+  const result = await safeExecute(
     "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
     [name, email, passwordHash],
   );
@@ -110,7 +110,7 @@ async function insertChat(userId, chat, startTime) {
   const timeOf = (index) => new Date(startTime + index * SECONDS_BETWEEN_MESSAGES * 1000);
   const lastMessageAt = timeOf(chat.messages.length - 1);
 
-  const [result] = await dbConnection.execute(
+  const result = await safeExecute(
     "INSERT INTO chats (user_id, title, created_at, updated_at) VALUES (?, ?, ?, ?)",
     [userId, chat.title, startedAt, lastMessageAt],
   );
@@ -120,7 +120,7 @@ async function insertChat(userId, chat, startTime) {
   for (const [index, message] of chat.messages.entries()) {
     // Roughly what the model would report: about 4 characters per token, whole conversation.
     tokensSoFar += Math.ceil(message.content.length / 4);
-    await dbConnection.execute(
+    await safeExecute(
       `INSERT INTO messages (chat_id, role, content, token_count, created_at)
        VALUES (?, ?, ?, ?, ?)`,
       [chatId, message.role, message.content, message.role === "assistant" ? tokensSoFar : 0, timeOf(index)],
@@ -144,7 +144,7 @@ export async function seedDemoData({ password, now = Date.now() }) {
 
   for (const user of DEMO_USERS) {
     const userId = await upsertUser(user, passwordHash);
-    await dbConnection.execute("DELETE FROM chats WHERE user_id = ?", [userId]);
+    await safeExecute("DELETE FROM chats WHERE user_id = ?", [userId]);
 
     const chats = user.chats ? allChats.slice(0, user.chats) : allChats;
     for (const [positionInFile, chat] of chats.entries()) {

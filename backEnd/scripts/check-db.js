@@ -1,10 +1,11 @@
 // Checks the database settings in .env and explains what's wrong if it can't connect.
 // Usage (in the backEnd folder): npm run db:check
+import "dotenv/config";
 import crypto from "node:crypto";
 import mysql from "mysql2/promise";
-import config from "../src/config/env.js";
+import { db, dbOptions } from "../schema/db.config.js";
 
-const { host, port, user, database, ssl } = config.db;
+const { host, port, user, database, ssl } = dbOptions;
 
 console.log("Database settings");
 console.log(`  Host:      ${host}:${port}`);
@@ -52,7 +53,7 @@ function hintFor(error) {
 
 let connection;
 try {
-  connection = await mysql.createConnection({ ...config.db, connectTimeout: 10000 });
+  connection = await mysql.createConnection({ ...dbOptions, connectTimeout: 10000 });
   const [[server]] = await connection.query("SELECT VERSION() AS version");
   const [tables] = await connection.query("SHOW TABLES");
   const names = tables.map((row) => Object.values(row)[0]);
@@ -70,4 +71,5 @@ try {
   process.exitCode = 1;
 } finally {
   await connection?.end().catch(() => {});
+  await db.end().catch(() => {});
 }

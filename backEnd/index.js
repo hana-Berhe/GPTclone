@@ -1,59 +1,41 @@
-import config from "./src/config/env.js";
-import dbConnection from "./db/db.config.js";
+// Must be the first import, so .env is loaded before the other files run
+import "dotenv/config";
 import { createApp } from "./src/app.js";
-import { setupDatabase } from "./db/setup.js";
+import { setupDatabase } from "./schema/setup.js";
 
-const SHUTDOWN_TIMEOUT_MS = 10_000;
+const PORT = Number(process.env.PORT) || 3000;
 
 async function startServer() {
   try {
+    // Creates any missing tables, and checks the database connection at the same time
     await setupDatabase();
+    console.log("Connected to database");
   } catch (error) {
-    console.error("Could not set up the database:", error.message);
+    console.error("Database connection failed. Server not started:", error.message);
     console.error("Run `npm run db:check` in the backEnd folder for details.");
     process.exit(1);
   }
 
   const app = createApp();
-  const server = app.listen(config.port, () => {
-    console.log(`Server is running on port ${config.port}`);
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
     if (!app.locals.servesClient) {
       console.log("(No frontend build found: run the frontend with `npm run dev`.)");
     }
   });
+}
 
-  server.on("error", (error) => {
-    if (error.code === "EADDRINUSE") {
-      console.error(`Port ${config.port} is already in use. Change PORT in .env.`);
-    } else {
-      console.error("Error starting the server:", error.message);
-    }
-    process.exit(1);
-  });
-
-  // Hosting platforms send SIGTERM before replacing the app with a new version.
-  // Stop accepting new requests, let running ones finish, then close the database.
-  let shuttingDown = false;
-  const shutdown = (signal) => {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    console.log(`${signal} received: shutting down...`);
-
-    setTimeout(() => {
-      console.error("Shutdown took too long; exiting.");
-      process.exit(1);
-    }, SHUTDOWN_TIMEOUT_MS).unref();
-
-    server.close(async () => {
-      await dbConnection.end().catch(() => {});
-      console.log("Shutdown complete.");
-      process.exit(0);
-    });
-    server.closeIdleConnections();
-  };
-
-  process.on("SIGTERM", () => shutdown("SIGTERM"));
-  process.on("SIGINT", () => shutdown("SIGINT"));
+// Stop right away with a clear message if a required setting is missing
+const required = ["DB_HOST", "DB_USER", "DB_NAME", "JWT_SECRET", "GEMINI_API_KEY"];
+const missing = required.filter((key) => !process.env[key]?.trim());
+if (missing.length > 0) {
+  console.error(`Missing in .env: ${missing.join(", ")}`);
+  console.error("Copy backEnd/.env.example to backEnd/.env and fill them in.");
+  process.exit(1);
+}
+if (process.env.JWT_SECRET.length < 32) {
+  console.error("JWT_SECRET must be at least 32 characters long.");
+  process.exit(1);
 }
 
 startServer();

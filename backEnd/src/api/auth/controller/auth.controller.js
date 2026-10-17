@@ -1,19 +1,49 @@
-import { getCurrentUserService, loginService, registerService } from "../service/auth.service.js";
+import { StatusCodes } from "http-status-codes";
+import {
+  registerService,
+  loginService,
+  getCurrentUserService,
+} from "../service/auth.service.js";
 
-// Input is already validated and cleaned by the validate() middleware (req.validated).
-// Express 5 forwards rejected promises to the error handler, so no try/catch is needed.
+// req.validated holds only the checked and cleaned fields (see validation-handler.js)
 
-export async function registerController(req, res) {
-  const result = await registerService(req.validated);
-  res.status(201).json({ status: "success", message: "Account created.", data: result });
-}
+const registerController = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.validated;
+    const result = await registerService({ name, email, password });
 
-export async function loginController(req, res) {
-  const result = await loginService(req.validated);
-  res.status(200).json({ status: "success", message: "Logged in.", data: result });
-}
+    res.status(StatusCodes.CREATED).json({
+      status: "success",
+      message: "Account created.",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export async function meController(req, res) {
-  const user = await getCurrentUserService(req.userId);
-  res.status(200).json({ status: "success", data: { user } });
-}
+const loginController = async (req, res, next) => {
+  try {
+    const { email, password } = req.validated;
+    const result = await loginService({ email, password });
+
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      message: "Logged in.",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const meController = async (req, res, next) => {
+  try {
+    const user = await getCurrentUserService(req.user.id);
+    res.status(StatusCodes.OK).json({ status: "success", data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { registerController, loginController, meController };

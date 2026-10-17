@@ -1,9 +1,9 @@
 // In-memory SQLite database that mimics the parts of the mysql2 pool the app uses.
 import { DatabaseSync } from "node:sqlite";
 
-const db = new DatabaseSync(":memory:");
+const sqlite = new DatabaseSync(":memory:");
 
-db.exec(`
+sqlite.exec(`
   PRAGMA foreign_keys = ON;
 
   CREATE TABLE users (
@@ -37,10 +37,10 @@ const toSqlValue = (value) =>
   value instanceof Date ? value.toISOString().slice(0, 19).replace("T", " ") : value;
 
 async function run(sql, params = []) {
-  // The tables above already exist; db/setup.js's MySQL statements are not needed.
+  // The tables above already exist; schema/setup.js's MySQL statements are not needed.
   if (/^\s*CREATE TABLE IF NOT EXISTS/i.test(sql)) return [{}];
 
-  const statement = db.prepare(sql);
+  const statement = sqlite.prepare(sql);
   try {
     const values = params.map(toSqlValue);
     if (/^\s*select/i.test(sql)) return [statement.all(...values)];
@@ -52,4 +52,7 @@ async function run(sql, params = []) {
   }
 }
 
-export default { execute: run, query: run, end: async () => {} };
+// Same exports as schema/db.config.js
+export const db = { execute: run, query: run, end: async () => {} };
+export const dbOptions = {};
+export const safeExecute = async (sql, params) => (await run(sql, params))[0];

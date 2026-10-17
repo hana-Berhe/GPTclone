@@ -1,7 +1,7 @@
-// Predictable stand-in for src/lib/gemini.js.
+// Predictable stand-in for src/api/chat/service/gemini.service.js.
 // Special words in the question trigger edge cases:
 //   FAIL429 -> rate-limit error, EMPTY -> no text, SLOW -> slow stream (for "Stop").
-import { toGeminiHistory } from "../../src/lib/gemini-history.js";
+import { toGeminiHistory } from "../../src/api/chat/service/gemini-history.js";
 
 /** Every request sent to the fake model, in Gemini's format. */
 export const geminiCalls = [];
@@ -36,3 +36,5 @@ export async function* streamAnswer({ history, question, signal }) {
 export async function generateTitle(question) {
   return `Title: ${question.slice(0, 20)}`;
 }
+
+export const GEMINI_MODEL = "test-model";

@@ -1,26 +1,46 @@
-export const notFoundHandler = (req, res) => {
-  res
-    .status(404)
-    .json({ status: "error", message: `Route ${req.method} ${req.originalUrl} not found.` });
-};
+import { StatusCodes } from "http-status-codes";
 
+// eslint-disable-next-line no-unused-vars
 export const errorHandler = (err, req, res, next) => {
-  // Malformed JSON body
+  // Body that isn't valid JSON, or is too big (thrown by express.json())
   if (err.type === "entity.parse.failed") {
-    return res.status(400).json({ status: "error", message: "Request body must be valid JSON." });
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: "error", message: "Request body must be valid JSON." });
   }
   if (err.type === "entity.too.large") {
-    return res.status(413).json({ status: "error", message: "Request body is too large." });
+    return res
+      .status(StatusCodes.REQUEST_TOO_LONG)
+      .json({ status: "error", message: "Request body is too large." });
   }
 
-  const status = err.status || 500;
-  if (status >= 500) console.error("Unhandled error:", err);
+  let customError = {
+    statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+    // Never send internal details (SQL errors, stack traces) to the user
+    message: err.statusCode ? err.message : "Something went wrong. Please try again later.",
+  };
+
+  if (err?.code === "ER_DUP_ENTRY") {
+    customError.statusCode = StatusCodes.CONFLICT;
+    customError.message = "This already exists.";
+  }
+
+  if (customError.statusCode === StatusCodes.INTERNAL_SERVER_ERROR) {
+    console.error(err);
+  }
 
   if (res.headersSent) return next(err);
 
-  res.status(status).json({
+  return res.status(customError.statusCode).json({
     status: "error",
-    // Never leak internal details (SQL errors, stack traces) to the client.
-    message: status >= 500 ? "Something went wrong. Please try again later." : err.message,
+    message: customError.message,
+    // Validation errors also send one message per field
+    ...(err.errors && { errors: err.errors }),
   });
 };
+
+// A request that matched no route ends here, so the client gets JSON, not HTML
+export const notFound = (req, res) =>
+  res
+    .status(StatusCodes.NOT_FOUND)
+    .json({ status: "error", message: `Route ${req.method} ${req.originalUrl} not found.` });

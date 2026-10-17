@@ -1,8 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
-import config from "../config/env.js";
 import { toGeminiHistory } from "./gemini-history.js";
 
-const client = new GoogleGenAI({ apiKey: config.gemini.apiKey });
+const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite";
+const GEMINI_MAX_OUTPUT_TOKENS = Number(process.env.GEMINI_MAX_OUTPUT_TOKENS) || 4096;
+
+const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const SYSTEM_PROMPT = [
   "You are a helpful, knowledgeable assistant.",
@@ -10,16 +12,16 @@ const SYSTEM_PROMPT = [
   "headings, lists, tables, and fenced code blocks with a language tag.",
 ].join(" ");
 
-// Streams the answer. Yields { text } chunks, then a final { totalTokens }.
+// Streams the answer. Yields { text } pieces, then a final { totalTokens }.
 export async function* streamAnswer({ history, question, signal }) {
   const contents = toGeminiHistory([...history, { role: "user", content: question }]);
 
   const stream = await client.models.generateContentStream({
-    model: config.gemini.model,
+    model: GEMINI_MODEL,
     contents,
     config: {
       systemInstruction: SYSTEM_PROMPT,
-      maxOutputTokens: config.gemini.maxOutputTokens,
+      maxOutputTokens: GEMINI_MAX_OUTPUT_TOKENS,
       abortSignal: signal,
     },
   });
@@ -29,17 +31,16 @@ export async function* streamAnswer({ history, question, signal }) {
     if (chunk.usageMetadata?.totalTokenCount) {
       totalTokens = chunk.usageMetadata.totalTokenCount;
     }
-    const text = chunk.text;
-    if (text) yield { text };
+    if (chunk.text) yield { text: chunk.text };
   }
 
   yield { totalTokens };
 }
 
-// Creates a short sidebar title for a new chat, like ChatGPT does.
+// Makes a short sidebar title for a new chat, like ChatGPT does
 export async function generateTitle(question) {
   const response = await client.models.generateContent({
-    model: config.gemini.model,
+    model: GEMINI_MODEL,
     contents: [
       {
         role: "user",
@@ -61,3 +62,5 @@ export async function generateTitle(question) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+export { GEMINI_MODEL };
