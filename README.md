@@ -74,19 +74,37 @@ Invalid input returns `400` with one message per field:
 
 ## Project structure (backend)
 
-Each feature follows the same layers:
+```
+backEnd/
+├── index.js               checks .env, creates missing tables, starts the server
+├── schema/
+│   ├── schema.sql         tables
+│   ├── db.config.js       MySQL pool and safeExecute
+│   ├── setup.js           runs schema.sql on startup
+│   ├── seed.js            demo data (npm run db:seed)
+│   └── seed-data.md       the demo conversations
+├── scripts/               db:check and db:seed commands
+└── src/
+    ├── app.js             middleware, routes, and the React build in production
+    ├── mainRoutes.js      all routes under /api
+    ├── api/
+    │   ├── auth/          register, login, current user
+    │   └── chat/          chats, messages, Gemini streaming
+    ├── middleware/        authentication, rate limits, validation, errors, security headers
+    └── utility/           error classes, password hashing, tokens, CORS, DB SSL
+```
+
+Each feature in `src/api/<feature>/` has the same folders:
 
 ```
-src/api/<feature>/
-  routes/       URL -> middleware -> controller
-  validation/   express-validator rules (shape of the input)
-  controller/   reads req.validated, sends the response
-  service/      business rules that need the database (ownership, duplicates)
-  model/        SQL queries
+routes/        URL -> middleware -> controller
+validations/   express-validator rules, ending with validationErrorHandler
+controller/    reads req.validated, sends the response
+service/       business rules and SQL queries
 ```
 
-`src/middleware/validate.js` runs the rules and puts the cleaned values on `req.validated`.
-Fields without a rule are dropped, so unexpected input never reaches a service.
+`validationErrorHandler` puts only the checked and cleaned fields on `req.validated`,
+so unexpected input never reaches a service.
 
 ## How a message flows
 
@@ -111,7 +129,6 @@ Built in for running publicly:
   per minute (`RATE_LIMIT_*` variables). Counters are kept in memory, which suits one instance.
 - **Security headers:** Content-Security-Policy, HSTS (production only), no framing, and more
   (`src/middleware/security-headers.js`).
-- **Clean shutdown:** on redeploy, running requests finish before the database closes.
 - **Health check:** `GET /api/health`.
 
 ## Deploying (Render + Aiven MySQL)
@@ -150,7 +167,7 @@ Today, Yesterday, Previous 7 days, Previous 30 days and an older month:
 
 The password is `Demo1234!` (or set your own: `SEED_PASSWORD=YourPassword npm run db:seed`).
 Run it again any time to reset the demo chats; real users are never touched. The
-conversations live in `backEnd/db/seed-data.md`, so you can edit them freely.
+conversations live in `backEnd/schema/seed-data.md`, so you can edit them freely.
 
 Run it from your computer: the chats are placed on calendar days in your time zone.
 To seed the deployed app, point `backEnd/.env` at the production database (Aiven) first.

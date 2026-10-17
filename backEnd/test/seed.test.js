@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
-import { DEMO_USERS, chatStartTime, parseSeedChats, seedDemoData } from "../db/seed.js";
+import { DEMO_USERS, chatStartTime, parseSeedChats, seedDemoData } from "../schema/seed.js";
 import { startServer } from "./support/server.js";
 
 const PASSWORD = "Demo1234!";

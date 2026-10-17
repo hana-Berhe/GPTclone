@@ -1,7 +1,7 @@
 // Module resolution hooks: redirect two app modules to test fakes.
 const fakes = {
-  "/db/db.config.js": new URL("./fake-db.js", import.meta.url).href,
-  "/src/lib/gemini.js": new URL("./fake-gemini.js", import.meta.url).href,
+  "/schema/db.config.js": new URL("./fake-db.js", import.meta.url).href,
+  "/src/api/chat/service/gemini.service.js": new URL("./fake-gemini.js", import.meta.url).href,
 };
 
 export async function resolve(specifier, context, nextResolve) {

@@ -1,9 +1,9 @@
 // Fills the database with demo users and conversations, e.g. for screenshots.
 // Usage (in the backEnd folder): npm run db:seed
 // Optional: SEED_PASSWORD=YourPassword npm run db:seed
-import config from "../src/config/env.js";
-import dbConnection from "../db/db.config.js";
-import { seedDemoData } from "../db/seed.js";
+import "dotenv/config";
+import { db } from "../schema/db.config.js";
+import { seedDemoData } from "../schema/seed.js";
 
 const password = process.env.SEED_PASSWORD || "Demo1234!";
 if (password.length < 8) {
@@ -11,7 +11,7 @@ if (password.length < 8) {
   process.exit(1);
 }
 
-console.log(`Seeding demo data into "${config.db.database}" on ${config.db.host}...`);
+console.log(`Seeding demo data into "${process.env.DB_NAME}" on ${process.env.DB_HOST}...`);
 
 try {
   const summary = await seedDemoData({ password });
@@ -27,5 +27,5 @@ try {
   console.error("  Run `npm run db:check` to test the database connection.");
   process.exitCode = 1;
 } finally {
-  await dbConnection.end?.().catch(() => {});
+  await db.end?.().catch(() => {});
 }
